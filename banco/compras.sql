@@ -72,7 +72,7 @@ create table pedido_cab (
 
 
 -- estrutura da tabela de pedidios de compras - detalhes --
-create table pedidio_det (
+create table pedido_det (
 	num_pedido integer,
     cod_produto integer,
     qtde integer,
@@ -82,10 +82,7 @@ create table pedidio_det (
     constraint foreign key fk_det_usuario (usucria) references usuarios(usuario),
     constraint foreign key fk_det_produto (cod_produto) references produtos(cod_produto),
     constraint foreign key fk_det_pedido (num_pedido) references pedido_cab(num_pedido)
-    
-)
-
-
+);
 
 
 
