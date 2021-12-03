@@ -68,6 +68,117 @@ class M_pedido extends CI_Model
   }
 
 
+  public function consultar_simples($usuario, $pedido)
+  {
+
+    $sql = "select cab.num_pedido, cab.usucria, cab.prazo, cab.observacao, 
+          det.cod_produto, det.qtde
+          from pedido_cab cab, pedido_det det
+          where cab.estatus = ''
+          and cab.num_pedido = det.num_pedido ";
+
+    if ($pedido != '' && $pedido != 0) {
+      $sql = $sql . "and cab.num_pedido = $pedido";
+    }
+
+    if ($usuario != '') {
+      $sql = $sql . "and cab.usucria = '$usuario'";
+    }
+
+    $retorno = $this->db->query($sql);
+
+    if ($retorno->num_rows() > 0) {
+      $dados = array(
+        'codigo' => 1,
+        'msg' => 'Consulta efetuada com sucesso',
+        'dados' => $retorno->result()
+      );
+    } else {
+      $dados = array(
+        'codigo' => 6,
+        'msg' => 'dados não encontrados'
+      );
+    }
+
+    return $dados;
+  }
+
+  public function consultar_complexo($usuario, $pedido)
+  {
+
+    $sql = "select num_pedido, usucria prazo, observacao
+            from pedido_cab 
+            where estatus = ''";
+
+    if ($pedido != '' && $pedido != 0) {
+      $sql = $sql . "and num_pedido = $pedido";
+    }
+
+    if ($usuario != '') {
+      $sql = $sql . "and usucria = '$usuario'";
+    }
+
+    $retorno = $this->db->query($sql);
+
+    if ($retorno->num_rows() > 0) {
+      $controle = 0;
+
+      foreach ($retorno->result() as $linha) {
+        $cabecalho = $retorno->result();
+        $pedido = $linha->num_pedido;
+
+        $sql2 = "select num_pedido, cod_produto, qtde
+                from pedido_det
+                where estatus = ''
+                and num_pedido = $pedido";
+
+
+        $retorno2 = $this->db->query($sql2);
+
+        if ($controle == 0) {
+          $dados_det[] = $retorno2->result();
+          $controle = 1;
+        } else {
+          $dados_det = array_merge($dados_det, $retorno2->result());
+        }
+
+        $dadosjuntos = array(
+          'cabec' => $cabecalho,
+          'detalhe' => $dados_det
+        );
+      }
+
+      $dados = array(
+        'codigo' => 1,
+        'msg' => 'Consulta efetuada com sucesso',
+        'dados' => $dadosjuntos
+      );
+    }
+
+    return $dados;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   private function numPedido()
   {
     $sql = "select coalesce(max(num_pedido) + 1, 1) num_pedido from pedido_cab";

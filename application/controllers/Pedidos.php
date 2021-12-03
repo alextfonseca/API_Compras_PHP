@@ -65,4 +65,36 @@ class Pedidos extends CI_Controller
 
     echo json_encode($retorno);
   }
+
+
+
+  public function consultar()
+  {
+
+    $json = file_get_contents('php://input');
+    $resultado = json_decode($json);
+
+    $usuario = $resultado->usuario;
+    $pedido = $resultado->codigo;
+    $tipo_consulta = $resultado->tipo_consulta;
+
+
+    if ($tipo_consulta != 'simples' && $tipo_consulta != 'complexo') {
+      $retorno = array(
+        'codigo' => 2,
+        'msg' => 'Tipo de consulta inválida'
+      );
+    } else {
+      $this->load->model('m_pedido');
+
+
+      if ($tipo_consulta == "simples") {
+        $retorno = $this->m_pedido->consultar_simples($usuario, $pedido);
+      } else {
+        $retorno = $this->m_pedido->consultar_complexo($usuario, $pedido);
+      }
+    }
+
+    echo json_encode($retorno);
+  }
 }
